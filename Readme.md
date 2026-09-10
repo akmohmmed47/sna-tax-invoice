@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SNA PACKAGING INDUSTRIES - Tax Invoice</title>
+<title>S.N.A. PACKAGING INDUSTRIES - Tax Invoice</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <style>
 :root{
-  --bg:#f4f5f8;--card:#ffffff;--text:#0f172a;--muted:#64748b;
+  --bg:#f4f5f8;--card:#ffffff;--text:#000000;--muted:#64748b;
   --accent:#0a1a4a;--gold:#b8903a;--gold-soft:rgba(184,144,58,.12);
   --border:rgba(15,23,42,.18);
 }
