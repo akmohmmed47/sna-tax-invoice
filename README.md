@@ -1,42 +1,321 @@
-# sna-tax-invoice
-Professional Tax Invoice Template for SNA PACKAGING INDUSTRIES - Sri Lanka
-# SNA PACKAGING INDUSTRIES - Tax Invoice
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SNA PACKAGING INDUSTRIES - Tax Invoice</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<style>
+:root{
+  --bg:#f4f5f8;--card:#ffffff;--text:#0f172a;--muted:#64748b;
+  --accent:#0a1a4a;--gold:#b8903a;--gold-soft:rgba(184,144,58,.12);
+  --border:rgba(15,23,42,.18);
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0;color:var(--text);font-family:'Source Sans 3',sans-serif;background:var(--bg);min-height:100vh}
+.reveal{opacity:0;transform:translateY(8px);animation:fadeUp .4s ease forwards}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+[contenteditable]:focus{outline:2px solid var(--gold);outline-offset:1px;background:rgba(184,144,58,.06);border-radius:2px}
+[contenteditable]{transition:background .15s ease}
+.editable-placeholder:empty:before{content:attr(data-placeholder);color:#aaa;font-style:italic;font-weight:400}
+.input-cell{min-height:18px;padding:1px 3px;border-radius:2px}
+.input-cell:hover{background:rgba(184,144,58,.04)}
+.form-box{border:1.5px solid #1a1a1a}
+.sna-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:45%;opacity:.06;pointer-events:none;z-index:1}
+.sna-watermark-corner{position:absolute;width:50px;opacity:.04;pointer-events:none;z-index:1}
+.doc-wrapper{position:relative;overflow:hidden}
+.btn{padding:8px 16px;border-radius:6px;font-weight:600;border:none;cursor:pointer;font-size:13px;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#1a3a7a);color:#fff}
+.btn-primary:hover{box-shadow:0 4px 14px rgba(10,26,74,.25)}
+.btn-gold{background:var(--gold-soft);color:var(--accent);border:1px solid var(--gold)}
+.btn-gold:hover{background:rgba(184,144,58,.18)}
+.btn-save{background:linear-gradient(135deg,#0d9669,#0a7a55);color:#fff}
+.btn-save:hover{box-shadow:0 4px 14px rgba(13,150,105,.25)}
+.btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.toolbar{position:sticky;top:0;z-index:100;background:rgba(244,245,248,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 0;margin-bottom:16px}
+.container{max-width:820px;margin:0 auto;padding:0 24px}
+.flex{display:flex}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.flex-wrap{flex-wrap:wrap}
+.gap-3{gap:12px}
+.gap-8{gap:8px}
+@media print{
+  .toolbar{display:none!important}.no-print{display:none!important}
+  .doc-wrapper{box-shadow:none!important;border:none!important;padding:0!important;margin:0!important;max-width:none!important}
+  body,html{background:#fff!important}
+}
+@page{size:A4 portrait;margin:10mm}
+</style>
+</head>
+<body>
 
-Professional automated tax invoice template built for SNA PACKAGING INDUSTRIES, Sri Lanka.
+<!-- Toolbar -->
+<div class="toolbar no-print">
+  <div class="container flex items-center justify-between flex-wrap gap-3">
+    <div class="flex items-center gap-3">
+      <img src="https://p16-flow-image-sign.ibyteimg.com/tos-mya-i-uo7y4d541q/105199f3c40b48439519417bfa26810d.jpg~tplv-0es2k971ck-image.image?rcl=202609101222219F65F2218526E03AA14B&rk3s=8e244e95&rrcfp=935dee89&x-expires=1789618942&x-signature=XgJkEyFnQwRQK31sdXM6rWb%2FIZI%3D" style="width:34px;height:34px;border-radius:8px;object-fit:contain;" onerror="this.style.display='none'">
+      <div>
+        <div style="font-weight:700;font-size:14px;color:var(--accent);font-family:'Cormorant Garamond',serif;">SNA PACKAGING INDUSTRIES</div>
+        <div style="font-size:10px;color:var(--muted);">Tax Invoice Editor</div>
+      </div>
+    </div>
+    <div class="flex gap-8 flex-wrap items-center">
+      <button class="btn btn-gold" onclick="addRow()">+ Add Item</button>
+      <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+      <button class="btn btn-save" onclick="saveAsPDF()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Save PDF
+      </button>
+      <button class="btn btn-primary" onclick="printInvoice()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print
+      </button>
+    </div>
+  </div>
+</div>
 
-## ✨ Features
+<div class="container" style="padding-bottom:40px">
+  
+  <!-- A4 Document -->
+  <div id="invoiceDoc" class="reveal doc-wrapper" style="background:var(--card);padding:20px 22px;border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 24px rgba(10,26,74,.08);position:relative;max-width:770px;margin:0 auto;">
+    
+    <!-- Watermarks -->
+    <img class="sna-watermark" src="https://p16-flow-image-sign.ibyteimg.com/tos-mya-i-uo7y4d541q/105199f3c40b48439519417bfa26810d.jpg~tplv-0es2k971ck-image.image?rcl=202609101222219F65F2218526E03AA14B&rk3s=8e244e95&rrcfp=935dee89&x-expires=1789618942&x-signature=XgJkEyFnQwRQK31sdXM6rWb%2FIZI%3D" onerror="this.style.display='none'">
+    <img class="sna-watermark-corner" style="top:10px;left:10px;" src="https://p16-flow-image-sign.ibyteimg.com/tos-mya-i-uo7y4d541q/105199f3c40b48439519417bfa26810d.jpg~tplv-0es2k971ck-image.image?rcl=202609101222219F65F2218526E03AA14B&rk3s=8e244e95&rrcfp=935dee89&x-expires=1789618942&x-signature=XgJkEyFnQwRQK31sdXM6rWb%2FIZI%3D" onerror="this.style.display='none'">
+    <img class="sna-watermark-corner" style="top:10px;right:10px;" src="https://p16-flow-image-sign.ibyteimg.com/tos-mya-i-uo7y4d541q/105199f3c40b48439519417bfa26810d.jpg~tplv-0es2k971ck-image.image?rcl=202609101222219F65F2218526E03AA14B&rk3s=8e244e95&rrcfp=935dee89&x-expires=1789618942&x-signature=XgJkEyFnQwRQK31sdXM6rWb%2FIZI%3D" onerror="this.style.display='none'">
+    <img class="sna-watermark-corner" style="bottom:55px;left:10px;" src="https://p16-flow-image-sign.ibyteimg.com/tos-mya-i-uo7y4d541q/105199f3c40b48439519417bfa26810d.jpg~tplv-0es2k971ck-image.image?rcl=202609101222219F65F2218526E03AA14B&rk3s=8e244e95&rrcfp=935dee89&x-expires=1789618942&x-signature=XgJkEyFnQwRQK31sdXM6rWb%2FIZI%3D" onerror="this.style.display='none'">
+    <img class="sna-watermark-corner" style="bottom:55px;right:10px;" src="https://p16-flow-image-sign.ibyteimg.com/tos-mya-i-uo7y4d541q/105199f3c40b48439519417bfa26810d.jpg~tplv-0es2k971ck-image.image?rcl=202609101222219F65F2218526E03AA14B&rk3s=8e244e95&rrcfp=935dee89&x-expires=1789618942&x-signature=XgJkEyFnQwRQK31sdXM6rWb%2FIZI%3D" onerror="this.style.display='none'">
+    
+    <!-- Logo LEFT + TAX INVOICE CENTERED -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;position:relative;z-index:2;">
+      <div style="display:flex;flex-direction:column;align-items:flex-start;">
+        <img src="https://p16-flow-image-sign.ibyteimg.com/tos-mya-i-uo7y4d541q/105199f3c40b48439519417bfa26810d.jpg~tplv-0es2k971ck-image.image?rcl=202609101222219F65F2218526E03AA14B&rk3s=8e244e95&rrcfp=935dee89&x-expires=1789618942&x-signature=XgJkEyFnQwRQK31sdXM6rWb%2FIZI%3D" style="width:62px;height:62px;object-fit:contain;" onerror="this.style.display='none'">
+      </div>
+      <div style="position:absolute;left:50%;transform:translateX(-50%);top:10px;text-align:center;">
+        <div style="display:inline-block;border:2px solid var(--accent);padding:5px 40px;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:var(--accent);letter-spacing:3px;">TAX INVOICE</span>
+        </div>
+      </div>
+      <div style="width:62px;"></div>
+    </div>
+    
+    <!-- Gold divider -->
+    <div style="height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--accent),var(--gold),transparent);margin-bottom:12px;position:relative;z-index:2;margin-top:8px;"></div>
+    
+    <!-- Form rows... (same as before - abbreviated for README) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;position:relative;z-index:2;">
+      <div class="form-box" style="padding:6px 10px;">
+        <div style="font-weight:700;font-size:12px;margin-bottom:1px;">Date of Invoice:</div>
+        <div class="input-cell editable-placeholder" contenteditable="true" data-placeholder="DD/MM/YYYY" style="font-size:13px;"></div>
+      </div>
+      <div class="form-box" style="padding:6px 10px;">
+        <div style="font-weight:700;font-size:12px;margin-bottom:1px;">Tax Invoice No.:</div>
+        <div class="input-cell editable-placeholder" contenteditable="true" data-placeholder="SPI-2026-001" style="font-size:13px;"></div>
+      </div>
+    </div>
+    
+    <!-- Supplier & Purchaser -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;position:relative;z-index:2;">
+      <div class="form-box" style="padding:8px;min-height:110px;display:flex;flex-direction:column;gap:4px;background:linear-gradient(180deg,rgba(10,26,74,.02),transparent);">
+        <div style="display:flex;align-items:flex-start;gap:5px;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Supplier's TIN:</span><span style="flex:1;font-size:13px;font-weight:600;color:var(--accent);">101092836</span></div>
+        <div style="display:flex;align-items:flex-start;gap:5px;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Supplier's Name:</span><span style="flex:1;font-size:13px;font-weight:700;color:var(--accent);">SNA PACKAGING INDUSTRIES</span></div>
+        <div style="display:flex;align-items:flex-start;gap:5px;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Address:</span><span style="flex:1;font-size:12px;line-height:1.3;">No.50, Stace Road, Grandpass,<br>Colombo 14, Sri Lanka</span></div>
+        <div style="display:flex;align-items:flex-start;gap:5px;margin-top:auto;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Telephone:</span><span style="flex:1;font-size:13px;font-weight:500;">011 303 0118</span></div>
+      </div>
+      <div class="form-box" style="padding:8px;min-height:110px;display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;align-items:flex-start;gap:5px;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Purchaser's TIN:</span><span class="input-cell editable-placeholder" contenteditable="true" data-placeholder="TIN" style="flex:1;font-size:13px;"></span></div>
+        <div style="display:flex;align-items:flex-start;gap:5px;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Purchaser's Name:</span><span class="input-cell editable-placeholder" contenteditable="true" data-placeholder="Customer name" style="flex:1;font-size:13px;"></span></div>
+        <div style="display:flex;align-items:flex-start;gap:5px;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Address:</span><span class="input-cell editable-placeholder" contenteditable="true" data-placeholder="Full address" style="flex:1;font-size:13px;min-height:30px;"></span></div>
+        <div style="display:flex;align-items:flex-start;gap:5px;margin-top:auto;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Telephone:</span><span class="input-cell editable-placeholder" contenteditable="true" data-placeholder="+94 XX XXX XXXX" style="flex:1;font-size:13px;"></span></div>
+      </div>
+    </div>
+    
+    <!-- Delivery & Supply -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;position:relative;z-index:2;">
+      <div class="form-box" style="padding:6px 10px;"><div style="font-weight:700;font-size:12px;margin-bottom:1px;">Date of Delivery:</div><div class="input-cell editable-placeholder" contenteditable="true" data-placeholder="DD/MM/YYYY" style="font-size:13px;"></div></div>
+      <div class="form-box" style="padding:6px 10px;"><div style="font-weight:700;font-size:12px;margin-bottom:1px;">Place of Supply:</div><div class="input-cell editable-placeholder" contenteditable="true" data-placeholder="Location" style="font-size:13px;"></div></div>
+    </div>
+    
+    <!-- Additional Info -->
+    <div class="form-box" style="padding:6px 10px;margin-bottom:12px;min-height:40px;position:relative;z-index:2;">
+      <div style="font-weight:700;font-size:12px;margin-bottom:1px;">Additional Information if any:</div>
+      <div class="input-cell editable-placeholder" contenteditable="true" data-placeholder="Notes, terms, etc." style="font-size:13px;min-height:17px;"></div>
+    </div>
+    
+    <!-- Items Table -->
+    <div style="margin-bottom:10px;position:relative;z-index:2;">
+      <table id="itemsTable" style="width:100%;border-collapse:collapse;border:1.5px solid #1a1a1a;font-size:12px;">
+        <thead>
+          <tr style="border-bottom:1.5px solid #1a1a1a;background:linear-gradient(180deg,rgba(10,26,74,.06),rgba(10,26,74,.02));">
+            <th style="border-right:1px solid #1a1a1a;padding:6px 4px;text-align:center;font-weight:700;width:8%;color:var(--accent);font-size:11px;">Ref.</th>
+            <th style="border-right:1px solid #1a1a1a;padding:6px 4px;text-align:center;font-weight:700;width:44%;color:var(--accent);font-size:11px;">Description of Goods or Services</th>
+            <th style="border-right:1px solid #1a1a1a;padding:6px 4px;text-align:center;font-weight:700;width:12%;color:var(--accent);font-size:11px;">Qty</th>
+            <th style="border-right:1px solid #1a1a1a;padding:6px 4px;text-align:center;font-weight:700;width:14%;color:var(--accent);font-size:11px;">Unit Price</th>
+            <th style="padding:6px 4px;text-align:center;font-weight:700;width:22%;color:var(--accent);font-size:11px;">Amount<br><span style="font-size:9px;font-weight:600;color:var(--muted);">(Rs.)</span></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    
+    <!-- Totals -->
+    <div style="border:1.5px solid #1a1a1a;border-top:none;position:relative;z-index:2;">
+      <div style="display:grid;grid-template-columns:3fr 1fr;border-top:1px solid #1a1a1a;"><div style="padding:5px 10px;font-weight:700;font-size:12px;border-right:1px solid #1a1a1a;">Total Value of Supply:</div><div id="totalSupply" style="padding:5px 10px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;">0.00</div></div>
+      <div style="display:grid;grid-template-columns:3fr 1fr;border-top:1px solid #1a1a1a;"><div style="padding:5px 10px;font-weight:700;font-size:12px;border-right:1px solid #1a1a1a;">VAT Amount @ 18%:</div><div id="vatAmount" style="padding:5px 10px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;">0.00</div></div>
+      <div style="display:grid;grid-template-columns:3fr 1fr;border-top:1px solid #1a1a1a;background:linear-gradient(90deg,rgba(10,26,74,.06),rgba(184,144,58,.06));"><div style="padding:5px 10px;font-weight:700;font-size:13px;border-right:1px solid #1a1a1a;color:var(--accent);">Total Amount including VAT:</div><div id="totalWithVat" style="padding:5px 10px;text-align:right;font-weight:700;font-size:14px;color:var(--gold);font-variant-numeric:tabular-nums;">0.00</div></div>
+    </div>
+    
+    <!-- Amount in words & Payment -->
+    <div style="border:1.5px solid #1a1a1a;border-top:none;margin-top:8px;position:relative;z-index:2;">
+      <div style="display:flex;align-items:flex-start;border-top:1px solid #1a1a1a;padding:5px 10px;gap:8px;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Total in words:</span><span id="amountInWords" class="input-cell editable-placeholder" contenteditable="true" data-placeholder="(Auto - Sri Lankan format)" style="flex:1;font-size:12px;color:var(--muted);font-style:italic;"></span></div>
+      <div style="display:flex;align-items:flex-start;border-top:1px solid #1a1a1a;padding:5px 10px;gap:8px;"><span style="font-weight:700;font-size:12px;white-space:nowrap;">Payment Mode:</span><span class="input-cell editable-placeholder" contenteditable="true" data-placeholder="Cash / Bank Transfer / Credit Card" style="flex:1;font-size:12px;"></span></div>
+    </div>
+    
+    <!-- Signature -->
+    <div style="margin-top:18px;display:flex;justify-content:flex-end;position:relative;z-index:2;">
+      <div style="text-align:right;"><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:28px;">Authorized Signatory</div></div>
+    </div>
+    
+    <!-- Gold bar & Footer -->
+    <div style="margin-top:12px;position:relative;z-index:2;"><div style="height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--accent),var(--gold),transparent);"></div></div>
+    <div style="margin-top:7px;text-align:center;position:relative;z-index:2;">
+      <div style="font-size:9.5px;color:var(--muted);letter-spacing:.15px;line-height:1.4;">
+        <span style="font-weight:700;color:var(--accent);">SNA PACKAGING INDUSTRIES</span>
+        <span style="margin:0 4px;color:var(--gold);">·</span><span>No.50, Stace Road, Grandpass, Colombo 14</span>
+        <span style="margin:0 4px;color:var(--gold);">·</span><span>Tel: 011 303 0118</span>
+        <span style="margin:0 4px;color:var(--gold);">·</span><span>TIN: 101092836</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="no-print" style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted);">
+    <span style="color:var(--gold);font-weight:600;">Sri Lankan Format:</span> Rupees + Cents + Only &nbsp;|&nbsp;
+    <span style="color:var(--accent);font-weight:600;">Auto Ref:</span> 1,2,3... auto-numbered &nbsp;|&nbsp;
+    <span style="color:#0d9669;font-weight:600;">A4 Single Sheet</span>
+  </div>
+</div>
 
-- **Fully Editable** - Click any field to type directly
-- **Auto Calculation** - Qty × Price, Totals, VAT @ 18% auto-computed
-- **Auto Reference Numbering** - 1, 2, 3... auto-increments when adding rows
-- **Sri Lankan Cheque Format** - Amount in words (Rupees + Cents + Only)
-- **Save as PDF** - One-click download to PC/Laptop/Mobile
-- **Print** - Direct browser print dialog
-- **Company Watermark** - Logo watermark with low transparency
-- **A4 Single Page** - Perfect fit on one A4 sheet
-
-## 🎨 Design
-
-- **Colors**: Navy Blue (#0a1a4a) + Gold (#b8903a)
-- **Fonts**: Cormorant Garamond (Headings) + Source Sans 3 (Body)
-- **Company**: SNA PACKAGING INDUSTRIES, Colombo 14, Sri Lanka
-- **TIN**: 101092836
-
-## 🚀 Usage
-
-1. Open `index.html` in any modern browser
-2. Fill in the invoice details
-3. Click **Save PDF** to download or **Print** to print directly
-
-## 📋 Tech Stack
-
-- Pure HTML5 + CSS3 + Vanilla JavaScript
-- html2pdf.js for PDF generation
-- Google Fonts (Cormorant Garamond + Source Sans 3)
-
-## 📞 Contact
-
-**SNA PACKAGING INDUSTRIES**  
-No.50, Stace Road, Grandpass, Colombo 14, Sri Lanka  
-Tel: 011 303 0118  
-TIN: 101092836
+<script>
+(function(){
+  var rowCounter = 0;
+  
+  function numberToWords(num) {
+    if (num === 0) return 'Zero Rupees Only';
+    var ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    var tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    function convert(n) {
+      if (n < 20) return ones[n];
+      if (n < 100) return tens[Math.floor(n/10)] + (n%10 ? ' ' + ones[n%10] : '');
+      if (n < 1000) return ones[Math.floor(n/100)] + ' Hundred' + (n%100 ? ' ' + convert(n%100) : '');
+      if (n < 1000000) {
+        var thousands = Math.floor(n / 1000), rem = n % 1000, str = '';
+        if (thousands > 0) str = convert(thousands) + ' Thousand';
+        if (rem > 0) str += (thousands > 0 ? ' ' : '') + convert(rem);
+        return str;
+      }
+      var millions = Math.floor(n / 1000000), rem = n % 1000000, str = '';
+      if (millions > 0) str = convert(millions) + ' Million';
+      if (rem > 0) str += (millions > 0 ? ' ' : '') + convert(rem);
+      return str;
+    }
+    var rupees = Math.floor(num), cents = Math.round((num - rupees) * 100);
+    var result = '';
+    if (rupees > 0) result = convert(rupees) + ' Rupees';
+    if (cents > 0) result += (result ? ' and ' : '') + convert(cents) + ' Cents';
+    return (result + ' Only').trim();
+  }
+  
+  function formatNum(n) {
+    if (isNaN(n) || !isFinite(n)) return '0.00';
+    return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  
+  function calcRow(row) {
+    var qty = parseFloat(row.querySelector('.qty').textContent.replace(/,/g,'')) || 0;
+    var price = parseFloat(row.querySelector('.price').textContent.replace(/,/g,'')) || 0;
+    row.querySelector('.amount').textContent = formatNum(qty * price);
+    calcTotals();
+  }
+  
+  function calcTotals() {
+    var total = 0;
+    document.querySelectorAll('#tableBody tr').forEach(function(r){
+      total += parseFloat(r.querySelector('.amount').textContent.replace(/,/g,'')) || 0;
+    });
+    var vat = total * 0.18, grand = total + vat;
+    document.getElementById('totalSupply').textContent = formatNum(total);
+    document.getElementById('vatAmount').textContent = formatNum(vat);
+    document.getElementById('totalWithVat').textContent = formatNum(grand);
+    var wordsEl = document.getElementById('amountInWords');
+    if (!wordsEl.dataset.userEdited) {
+      wordsEl.textContent = numberToWords(grand);
+      wordsEl.style.color = 'var(--text)';
+      wordsEl.style.fontStyle = 'normal';
+    }
+  }
+  
+  function renumberRows() {
+    document.querySelectorAll('#tableBody tr').forEach(function(row, idx){
+      var refCell = row.querySelector('.ref-num');
+      if (refCell) refCell.textContent = (idx + 1);
+    });
+  }
+  
+  window.addRow = function() {
+    rowCounter++;
+    var tr = document.createElement('tr');
+    tr.style.borderTop = '1px solid #1a1a1a';
+    tr.innerHTML = '<td style="border-right:1px solid #1a1a1a;padding:4px;text-align:center;"><div class="ref-num" style="font-size:12px;font-weight:700;color:var(--accent);">' + rowCounter + '</div></td><td style="border-right:1px solid #1a1a1a;padding:4px;"><div class="input-cell editable-placeholder desc" contenteditable="true" data-placeholder="Item description" style="font-size:12px;"></div></td><td style="border-right:1px solid #1a1a1a;padding:4px;text-align:center;"><div class="input-cell editable-placeholder qty" contenteditable="true" data-placeholder="0" style="font-size:12px;font-variant-numeric:tabular-nums;"></div></td><td style="border-right:1px solid #1a1a1a;padding:4px;text-align:right;"><div class="input-cell editable-placeholder price" contenteditable="true" data-placeholder="0.00" style="font-size:12px;font-variant-numeric:tabular-nums;"></div></td><td style="padding:4px;text-align:right;"><div class="amount" style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--gold);">0.00</div></td>';
+    document.getElementById('tableBody').appendChild(tr);
+    tr.querySelectorAll('.qty, .price').forEach(function(el){
+      el.addEventListener('input', function(){ calcRow(tr); });
+      el.addEventListener('blur', function(){
+        var v = parseFloat(el.textContent.replace(/,/g,''));
+        if (!isNaN(v) && isFinite(v) && el.classList.contains('price')) el.textContent = formatNum(v);
+      });
+    });
+    renumberRows();
+    calcTotals();
+  };
+  
+  window.clearAll = function() {
+    if (!confirm('Clear customer fields and items?')) return;
+    document.querySelectorAll('.form-box [contenteditable="true"]').forEach(function(el){
+      var t = el.textContent;
+      if (!t.includes('101092836') && !t.includes('SNA') && !t.includes('Stace') && !t.includes('011')) el.textContent = '';
+    });
+    document.getElementById('tableBody').innerHTML = '';
+    rowCounter = 0;
+    for (var i = 0; i < 5; i++) addRow();
+    document.getElementById('amountInWords').dataset.userEdited = '';
+    calcTotals();
+  };
+  
+  window.printInvoice = function() {
+    try { if (window.parent && window.parent !== window) window.parent.print(); else window.print(); }
+    catch(e) { window.print(); }
+  };
+  
+  window.saveAsPDF = function() {
+    var invNo = document.querySelector('[data-placeholder="SPI-2026-001"]');
+    var filename = 'SNA_Tax_Invoice' + (invNo && invNo.textContent.trim() ? '_' + invNo.textContent.trim().replace(/[^a-zA-Z0-9-_]/g, '') : '') + '.pdf';
+    var opt = { margin: 8, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }, pagebreak: { mode: 'avoid-all' } };
+    html2pdf().set(opt).from(document.getElementById('invoiceDoc')).save();
+  };
+  
+  document.getElementById('amountInWords').addEventListener('input', function(){
+    this.dataset.userEdited = 'true';
+    this.style.color = 'var(--text)';
+    this.style.fontStyle = 'normal';
+  });
+  
+  for (var i = 0; i < 5; i++) addRow();
+  calcTotals();
+})();
+</script>
+</body>
+</html>
