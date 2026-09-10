@@ -23,7 +23,7 @@ body{margin:0;padding:0;color:var(--text);font-family:'Source Sans 3',sans-serif
 .input-cell:hover{background:rgba(184,144,58,.04)}
 .form-box{border:1.5px solid #1a1a1a}
 .sna-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:45%;opacity:.04;pointer-events:none;z-index:1}
-.sna-watermark-corner{position:absolute;width:50px;opacity:.06;pointer-events:none;z-index:1}
+.sna-watermark-corner{position:absolute;right:50px;opacity:.02;pointer-events:none;z-index:1}
 .doc-wrapper{position:relative;overflow:hidden}
 .btn{padding:8px 16px;border-radius:6px;font-weight:600;border:none;cursor:pointer;font-size:13px;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
 .btn:hover{transform:translateY(-1px)}
