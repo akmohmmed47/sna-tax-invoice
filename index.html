@@ -36,6 +36,14 @@ body{margin:0;padding:0;color:#000000;font-family:'Source Sans 3',sans-serif;bac
 .btn-secondary{background:#ffffff;color:#000000;border:1px solid rgba(15,23,42,.18)}
 .btn-secondary:hover{border-color:#b8903a;color:#b8903a}
 .toolbar{position:sticky;top:0;z-index:100;background:rgba(244,245,248,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(15,23,42,.18);padding:10px 0;margin-bottom:16px}
+.vat-switch{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none;padding:5px 10px;border:1px solid rgba(15,23,42,.18);border-radius:6px;background:#fff;font-size:12px;font-weight:700;color:#0a1a4a}
+.vat-switch input{display:none}
+.vat-track{width:36px;height:20px;border-radius:20px;background:#cbd5e1;position:relative;transition:background .2s}
+.vat-knob{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s}
+.vat-switch input:checked + .vat-track{background:#0d9669}
+.vat-switch input:checked + .vat-track .vat-knob{left:18px}
+.vat-state{min-width:22px;font-size:11px;color:#64748b}
+.vat-switch input:checked ~ .vat-state{color:#0d9669}
 .container{max-width:820px;margin:0 auto;padding:0 24px}
 .flex{display:flex}
 .items-center{align-items:center}
@@ -52,7 +60,7 @@ body{margin:0;padding:0;color:#000000;font-family:'Source Sans 3',sans-serif;bac
 </style>
 </head>
 <body>
- 
+
 <!-- Toolbar -->
 <div class="toolbar no-print">
   <div class="container flex items-center justify-between flex-wrap gap-3">
@@ -64,6 +72,12 @@ body{margin:0;padding:0;color:#000000;font-family:'Source Sans 3',sans-serif;bac
       </div>
     </div>
     <div class="flex gap-8 flex-wrap items-center">
+      <label class="vat-switch" title="VAT 18% ON / OFF">
+        <span class="vat-switch-label">VAT 18%</span>
+        <input type="checkbox" id="vatToggle" checked>
+        <span class="vat-track"><span class="vat-knob"></span></span>
+        <span class="vat-state" id="vatState">ON</span>
+      </label>
       <button class="btn btn-gold" onclick="addRow()">+ Add Item</button>
       <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
       <button class="btn btn-save" onclick="saveAsPDF()">
@@ -77,7 +91,7 @@ body{margin:0;padding:0;color:#000000;font-family:'Source Sans 3',sans-serif;bac
     </div>
   </div>
 </div>
- 
+
 <div class="container" style="padding-bottom:40px">
   
   <!-- A4 Document -->
@@ -165,8 +179,8 @@ body{margin:0;padding:0;color:#000000;font-family:'Source Sans 3',sans-serif;bac
     <!-- Totals -->
     <div style="border:1.5px solid #1a1a1a;border-top:none;position:relative;z-index:2;">
       <div style="display:grid;grid-template-columns:3fr 1fr;border-top:1px solid #1a1a1a;"><div style="padding:5px 10px;font-weight:700;font-size:12px;border-right:1px solid #1a1a1a;">Total Value of Supply:</div><div id="totalSupply" style="padding:5px 10px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;">0.00</div></div>
-      <div style="display:grid;grid-template-columns:3fr 1fr;border-top:1px solid #1a1a1a;"><div style="padding:5px 10px;font-weight:700;font-size:12px;border-right:1px solid #1a1a1a;">VAT Amount @ 18%:</div><div id="vatAmount" style="padding:5px 10px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;">0.00</div></div>
-      <div style="display:grid;grid-template-columns:3fr 1fr;border-top:1px solid #1a1a1a;background:linear-gradient(90deg,rgba(10,26,74,.06),rgba(184,144,58,.06));"><div style="padding:5px 10px;font-weight:700;font-size:13px;border-right:1px solid #1a1a1a;color:#0a1a4a;">Total Amount including VAT:</div><div id="totalWithVat" style="padding:5px 10px;text-align:right;font-weight:700;font-size:14px;color:#b8903a;font-variant-numeric:tabular-nums;">0.00</div></div>
+      <div id="vatRow" style="display:grid;grid-template-columns:3fr 1fr;border-top:1px solid #1a1a1a;"><div style="padding:5px 10px;font-weight:700;font-size:12px;border-right:1px solid #1a1a1a;">VAT Amount @ 18%:</div><div id="vatAmount" style="padding:5px 10px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;">0.00</div></div>
+      <div style="display:grid;grid-template-columns:3fr 1fr;border-top:1px solid #1a1a1a;background:linear-gradient(90deg,rgba(10,26,74,.06),rgba(184,144,58,.06));"><div id="grandLabel" style="padding:5px 10px;font-weight:700;font-size:13px;border-right:1px solid #1a1a1a;color:#0a1a4a;">Total Amount including VAT:</div><div id="totalWithVat" style="padding:5px 10px;text-align:right;font-weight:700;font-size:14px;color:#b8903a;font-variant-numeric:tabular-nums;">0.00</div></div>
     </div>
     
     <!-- Amount in words & Payment -->
@@ -198,14 +212,14 @@ body{margin:0;padding:0;color:#000000;font-family:'Source Sans 3',sans-serif;bac
     <span style="color:#0d9669;font-weight:600;">A4 Single Sheet</span>
   </div>
 </div>
- 
+
 <script>
 (function(){
   var rowCounter = 0;
   var ACCENT = '#0a1a4a';
   var GOLD = '#b8903a';
   var TEXT = '#000000';
- 
+
   function numberToWords(num) {
     if (num === 0) return 'Zero Rupees Only';
     var ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
@@ -249,7 +263,12 @@ body{margin:0;padding:0;color:#000000;font-family:'Source Sans 3',sans-serif;bac
     document.querySelectorAll('#tableBody tr').forEach(function(r){
       total += parseFloat(r.querySelector('.amount').textContent.replace(/,/g,'')) || 0;
     });
-    var vat = total * 0.18, grand = total + vat;
+    var vatOn = document.getElementById('vatToggle').checked;
+    var vat = vatOn ? Math.round(total * 0.18 * 100) / 100 : 0;
+    var grand = Math.round((total + vat) * 100) / 100;
+    document.getElementById('vatRow').style.display = vatOn ? 'grid' : 'none';
+    document.getElementById('grandLabel').textContent = vatOn ? 'Total Amount including VAT:' : 'Total Amount:';
+    document.getElementById('vatState').textContent = vatOn ? 'ON' : 'OFF';
     document.getElementById('totalSupply').textContent = formatNum(total);
     document.getElementById('vatAmount').textContent = formatNum(vat);
     document.getElementById('totalWithVat').textContent = formatNum(grand);
@@ -340,10 +359,14 @@ body{margin:0;padding:0;color:#000000;font-family:'Source Sans 3',sans-serif;bac
     this.style.fontStyle = 'normal';
   });
   
+  document.getElementById('vatToggle').addEventListener('change', function(){
+    document.getElementById('amountInWords').dataset.userEdited = '';
+    calcTotals();
+  });
+
   for (var i = 0; i < 5; i++) addRow();
   calcTotals();
 })();
 </script>
 </body>
 </html>
- 
